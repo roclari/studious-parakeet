@@ -10,10 +10,11 @@ from fastapi import (
     status,
 )
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
 
 app = FastAPI()
 
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 async def get_cookie_or_token(
@@ -43,3 +44,10 @@ async def websocket_endpoint(
         if q is not None:
             await websocket.send_text(f"Query parameter q is: {q}")
         await websocket.send_text(f"Message text was: {data}, for item ID: {item_id}")
+
+
+@app.get("/", response_class=HTMLResponse)
+async def get():
+    with open("static/index.html") as f:
+        html_content = f.read()
+    return HTMLResponse(content=html_content, status_code=200)
